@@ -22,7 +22,13 @@ app.post("/", [body("title").isLength({ min: 3 }), body("price").isLength({ min:
 app.get("/", controller.getAllCourses);
 app.get('/:id', controller.getSingleCourse)
 app.put("/:id", controller.updateCourse);
-
+app.delete("/:id", controller.deleteCourse);
+app.use((req, res, next) => {
+   res.status(404).json({
+      status: "error",
+      message: "page not found",
+   });
+})
 app.listen(3000, function () {
    console.log("Server is running on port 3000");
 });
