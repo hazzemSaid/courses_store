@@ -30,7 +30,12 @@ const createNewCourse = async (req, res) => {
 // ✅ Get all courses
 const getAllCourses = async (req, res) => {
 	try {
-		const allCourses = await Courses.find({},{"__v":false});
+		const limit = req.query.limit || 10;
+		const page = req.query.page || 1;
+		const skip = (page - 1) * limit;
+
+
+		const allCourses = await Courses.find({}, { "__v": false }).skip(skip).limit(limit);
 		// res.json(allCourses);
 		res.status(200).json({
 			status: httpResponseText.Success,
@@ -48,7 +53,7 @@ const getAllCourses = async (req, res) => {
 // ✅ Get a single course by ID
 const getSingleCourse = async (req, res) => {
 	try {
-		const course = await Courses.findById(req.params.id,{"__v":false});
+		const course = await Courses.findById(req.params.id, { "__v": false });
 		if (!course) {
 			return res.status(404).json({ stuts: httpResponseText.Fail, error: "Course not found" });
 			// return res.status(404).json({ error: "Course not found" });
@@ -63,7 +68,7 @@ const getSingleCourse = async (req, res) => {
 // ✅ Update a course
 const updateCourse = async (req, res) => {
 	try {
-		const course = await Courses.findById(req.params.id,{"__v":false});
+		const course = await Courses.findById(req.params.id, { "__v": false });
 		if (!course) {
 			// return res.status(404).json({ error: "Course not found" });
 			return res.status(404).json({ status: httpResponseText.Fail, error: "Course not found" });
@@ -74,7 +79,7 @@ const updateCourse = async (req, res) => {
 		course.price = req.body.price || course.price;
 
 		// Save and return the updated course
-		await course.save({},{"__v":false});
+		await course.save({}, { "__v": false });
 		// res.json(course);
 		res.status(200).json({
 			status: httpResponseText.Success,
@@ -90,7 +95,7 @@ const updateCourse = async (req, res) => {
 };
 const deleteCourse = (req, res, next) => {
 	const id = req.params.id;
-	Courses.findByIdAndDelete(id,{"__v":false}).then((data) => {
+	Courses.findByIdAndDelete(id, { "__v": false }).then((data) => {
 		// res.json(data);
 		if (!data) {
 			return res.status(404).json({ status: httpResponseText.Fail, error: "Course not found" });
