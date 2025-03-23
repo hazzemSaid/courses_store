@@ -18,7 +18,6 @@ const createNewCourse = async (req, res) => {
 			data: newCourse,
 		})
 	} catch (error) {
-		console.error("Error creating course:", error);
 		// res.status(500).json({ message: "Internal Server Error" });
 		res.status(500).json({
 			status: httpResponseText.Error,
@@ -55,12 +54,12 @@ const getSingleCourse = async (req, res) => {
 	try {
 		const course = await Courses.findById(req.params.id, { "__v": false });
 		if (!course) {
-			return res.status(404).json({ stuts: httpResponseText.Fail, error: "Course not found" });
+			return res.status(404).json({ stuts: httpResponseText.Fail, error:error.massage });
 			// return res.status(404).json({ error: "Course not found" });
 		}
 		res.json(course);
 	} catch (error) {
-		res.status(500).json({ status: httpResponseText.Error, message: "Error fetching course" });
+		res.status(500).json({ status: httpResponseText.Error, message: error.massage });
 		// res.status(404).json({ error: "Invalid Course ID" });
 	}
 };
@@ -71,7 +70,7 @@ const updateCourse = async (req, res) => {
 		const course = await Courses.findById(req.params.id, { "__v": false });
 		if (!course) {
 			// return res.status(404).json({ error: "Course not found" });
-			return res.status(404).json({ status: httpResponseText.Fail, error: "Course not found" });
+			return res.status(404).json({ status: httpResponseText.Fail, error: error.massage });
 		}
 
 		// Update values
@@ -98,7 +97,7 @@ const deleteCourse = (req, res, next) => {
 	Courses.findByIdAndDelete(id, { "__v": false }).then((data) => {
 		// res.json(data);
 		if (!data) {
-			return res.status(404).json({ status: httpResponseText.Fail, error: "Course not found" });
+			return res.status(404).json({ status: httpResponseText.Fail, error: error.massage });
 		}
 		res.status(200).json({
 			status: httpResponseText.Success,

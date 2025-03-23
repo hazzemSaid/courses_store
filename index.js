@@ -1,3 +1,4 @@
+require('dotenv').config();
 var morgan = require("morgan");
 const controller = require("./controller/courses_controller.js");
 const { body } = require("express-validator");
@@ -8,7 +9,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 // app.use(express.json());
-const url = "mongodb+srv://hazemsaid:node_js123@cluster0.iolzy.mongodb.net/codezone?retryWrites=true&w=majority&appName=Cluster0";
+const url = process.env.DB_URL;
 mongoose.connect(url).then(() => {
    console.log("connected to the database");
 }).catch((err) => {
@@ -18,12 +19,9 @@ mongoose.connect(url).then(() => {
 
 app.use(morgan("dev"));
 
-app.post("/", [body("title").isLength({ min: 3 }), body("price").isLength({ min: 3 })], controller.createNewCourse)
-app.get("/", controller.getAllCourses);
-app.get('/:id', controller.getSingleCourse)
-app.put("/:id", controller.updateCourse);
-app.delete("/:id", controller.deleteCourse);
-app.use((req, res, next) => {
+const courserouter=require("./routes/courses_route");
+app.use("/api/v1/courses",courserouter);
+app.use("*",(req, res, next) => {
    res.status(404).json({
       status: "error",
       message: "page not found",
