@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator");
 const Courses = require("../models/course.model");
 const httpResponseText = require("../models/httpResponsetext");
+const asyncWrapper = require("../middleware/asyncwrapper");
 // ✅ Create a new course
 const createNewCourse = async (req, res) => {
 	try {
@@ -50,19 +51,18 @@ const getAllCourses = async (req, res) => {
 };
 
 // ✅ Get a single course by ID
-const getSingleCourse = async (req, res) => {
-	try {
+const getSingleCourse = asyncWrapper(
+	async (req, res, next) => {
 		const course = await Courses.findById(req.params.id, { "__v": false });
 		if (!course) {
-			return res.status(404).json({ stuts: httpResponseText.Fail, error:error.massage });
+			const err = new Error("Course not found");
+			return next(err);
+			// return res.status(404).json({ stuts: httpResponseText.Fail, error:error.massage });
 			// return res.status(404).json({ error: "Course not found" });
 		}
 		res.json(course);
-	} catch (error) {
-		res.status(500).json({ status: httpResponseText.Error, message: error.massage });
-		// res.status(404).json({ error: "Invalid Course ID" });
-	}
-};
+
+	});
 
 // ✅ Update a course
 const updateCourse = async (req, res) => {

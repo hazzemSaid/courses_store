@@ -26,12 +26,24 @@ app.use(morgan("dev"));
 
 const courserouter=require("./routes/courses_route");
 app.use("/api/v1/courses",courserouter);
+
+//global middleware for not found routes
 app.use("*",(req, res, next) => {
    res.status(404).json({
       status: "error",
       message: "page not found",
    });
 })
+
+//global middleware for error handling
+app.use((err, req, res, next) => {
+     res.status(403).json({
+      status: "error",
+     error :err.message
+   });
+
+})
+
 app.listen(process.env.PORT||3000, function () {
    console.log("Server is ru nning on port", `${process.env.PORT}`);
 });
