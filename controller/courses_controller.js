@@ -3,33 +3,29 @@ const Courses = require("../models/course.model");
 const httpResponseText = require("../models/httpResponsetext");
 const asyncWrapper = require("../middleware/asyncwrapper");
 // ✅ Create a new course
-const createNewCourse = async (req, res) => {
-	try {
+const Error_handler = require("../utils/error");
+const createNewCourse = asyncWrapper(
+	async (req, res,next) => {
 		// Validate request
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
-			return res.status(400).json({ status: httpResponseText.error, massage: { error: errors.array() } });
+			
+			return res.status(400).json({ status: httpResponseText.Fail, error: errors.array() });
 		}
 
 		// Create and save course
 		const newCourse = await Courses.create({ ...req.body });
 		// res.status(201).json(newCourse);
-		res.status(201).json({
+		return res.status(201).json({
 			status: httpResponseText.Success,
 			data: newCourse,
 		})
-	} catch (error) {
-		// res.status(500).json({ message: "Internal Server Error" });
-		res.status(500).json({
-			status: httpResponseText.Error,
-			massage: error.massage,
-		})
-	}
-};
+}
+);
 
 // ✅ Get all courses
-const getAllCourses = async (req, res) => {
-	try {
+const getAllCourses = asyncWrapper(
+	async (req, res) => {
 		const limit = req.query.limit || 10;
 		const page = req.query.page || 1;
 		const skip = (page - 1) * limit;
@@ -41,21 +37,14 @@ const getAllCourses = async (req, res) => {
 			status: httpResponseText.Success,
 			data: allCourses,
 		})
-	} catch (error) {
-		// res.status(500).json({ message: "Error fetching courses" });
-		res.status(500).json({
-			status: httpResponseText.Error,
-			massage: error.massage,
-		})
-	}
-};
+	});
 
 // ✅ Get a single course by ID
 const getSingleCourse = asyncWrapper(
 	async (req, res, next) => {
 		const course = await Courses.findById(req.params.id, { "__v": false });
 		if (!course) {
-			const err = new Error("Course not found");
+			const err =Error_handler("Course not found");
 			return next(err);
 			// return res.status(404).json({ stuts: httpResponseText.Fail, error:error.massage });
 			// return res.status(404).json({ error: "Course not found" });
@@ -65,52 +54,44 @@ const getSingleCourse = asyncWrapper(
 	});
 
 // ✅ Update a course
-const updateCourse = async (req, res) => {
-	try {
-		const course = await Courses.findById(req.params.id, { "__v": false });
-		if (!course) {
-			// return res.status(404).json({ error: "Course not found" });
-			return res.status(404).json({ status: httpResponseText.Fail, error: error.massage });
-		}
+const updateCourse = asyncWrapper(async (req, res) => {
+	const course = await Courses.findById(req.params.id, { "__v": false });
+	if (!course) {
+		const err = Error_handler.createError("Course not found");
+	return 	next(err);
+	}
+	// Update values
+	course.title = req.body.title || course.title;
+	course.price = req.body.price || course.price;
 
-		// Update values
-		course.title = req.body.title || course.title;
-		course.price = req.body.price || course.price;
-
-		// Save and return the updated course
-		await course.save({}, { "__v": false });
-		// res.json(course);
-		res.status(200).json({
-			status: httpResponseText.Success,
-			data: course,
-		})
-	} catch (error) {
-		// res.status(500).json({ message: "Error updating course" });
-		res.status(500).json({
-			status: httpResponseText.Error,
-			massage: error.massage,
+	// Save and return the updated course
+	await course.save({}, { "__v": false });
+	// res.json(course);
+	res.status(200).json({
+		status: httpResponseText.Success,
+		data: course,
+	}
+	)
+});
+const deleteCourse = asyncWrapper(
+	(req, res, next) => {
+		const id = req.params.id;
+		Courses.findByIdAndDelete(id, { "__v": false }).then((data) => {
+			// res.json(data);
+			if (!data) {
+				const err = Error_handler.createError("Course not found");
+				return next(err);
+			}
+			res.status(200).json({
+				status: httpResponseText.Success,
+				data: data,
+			})
+		}).catch((e) => {
+			const err = Error_handler.createError(e.massage);
+			return next(err);
 		})
 	}
-};
-const deleteCourse = (req, res, next) => {
-	const id = req.params.id;
-	Courses.findByIdAndDelete(id, { "__v": false }).then((data) => {
-		// res.json(data);
-		if (!data) {
-			return res.status(404).json({ status: httpResponseText.Fail, error: error.massage });
-		}
-		res.status(200).json({
-			status: httpResponseText.Success,
-			data: data,
-		})
-	}).catch((err) => {
-		res.status(404).json({
-			status: httpResponseText.Error,
-			massage: err.massage,
-		})
-		// res.json(err);
-	})
-}
+)
 module.exports = {
 	createNewCourse,
 	getAllCourses,
