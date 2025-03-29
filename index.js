@@ -7,6 +7,7 @@ const { body } = require("express-validator");
 const express = require("express");
 const mongoose = require('mongoose');
 const app = express();
+const userRouter = require("./routes/user_route.js");
 require('dotenv').config();
 
 const url = process.env.DB_URL;
@@ -26,7 +27,7 @@ app.use(morgan("dev"));
 
 const courserouter=require("./routes/courses_route");
 app.use("/api/v1/courses",courserouter);
-
+app.use("/api/v1/users",userRouter);
 //global middleware for not found routes
 app.use("*",(req, res, next) => {
    res.status(404).json({

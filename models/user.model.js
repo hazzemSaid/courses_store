@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require('validator');
 
-const user = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
 	id: {
 		type: mongoose.Schema.Types.ObjectId,
 		auto: true,
@@ -26,4 +26,4 @@ const user = new mongoose.Schema({
 		required: true,
 	},
 });
-module.exports = mongoose.model("User", user);
+module.exports = mongoose.model("User", userSchema);
