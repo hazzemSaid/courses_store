@@ -8,9 +8,10 @@ const createNewCourse = asyncWrapper(async (req, res, next) => {
   // Validate request
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res
-      .status(400)
-      .json({ status: httpResponseText.Fail, error: errors.array() });
+    const err = Error_handler.createError("Validation Error", 400);
+    err.data = errors.array();
+    console.log("here");
+    return next(err);
   }
 
   // Create and save course
@@ -42,10 +43,9 @@ const getAllCourses = asyncWrapper(async (req, res) => {
 const getSingleCourse = asyncWrapper(async (req, res, next) => {
   const course = await Courses.findById(req.params.id, { __v: false });
   if (!course) {
-    const err = Error_handler("Course not found");
+    const err = Error_handler.createError("Course not found", 404);
+    console.log(err);
     return next(err);
-    // return res.status(404).json({ stuts: httpResponseText.Fail, error:error.massage });
-    // return res.status(404).json({ error: "Course not found" });
   }
   res.json(course);
 });
@@ -54,7 +54,7 @@ const getSingleCourse = asyncWrapper(async (req, res, next) => {
 const updateCourse = asyncWrapper(async (req, res) => {
   const course = await Courses.findById(req.params.id, { __v: false });
   if (!course) {
-    const err = Error_handler.createError("Course not found");
+    const err = Error_handler.createError("Course not found", 404, );
     return next(err);
   }
   // Update values
