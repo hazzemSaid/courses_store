@@ -2,7 +2,8 @@ const express = require("express");
 const Router = express.Router();
 const usercontroller = require("../controller/user.controller");
 const { body } = require("express-validator");
-Router.get("/", usercontroller.getalluser);
+const varifyToken = require("../middleware/verifyToken");
+Router.get("/",varifyToken , usercontroller.getalluser);
 Router.post(
 	"/register",
 	[
