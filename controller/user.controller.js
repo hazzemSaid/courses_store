@@ -6,6 +6,7 @@ const httpResponseText = require("../models/httpResponsetext");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const getalluser = asyncWrapper(async (req, res) => {
+	//is protected route with token
 	const users = await userSchema.find({}, { __v: false });
 	return res.status(200).json({
 		status: "success",
@@ -13,11 +14,8 @@ const getalluser = asyncWrapper(async (req, res) => {
 	});
 });
 const register = asyncWrapper(async (req, res, next) => {
-	//req.body
-	//req.params
-	//req.query
+
 	const { email, password, name, phone } = req.body;
-	console.log(email, password, name, phone);
 	const hashpasswrod = bcrypt.hashSync(password, 10);
 	const newuser = userSchema({
 		email,
@@ -57,7 +55,8 @@ const deleteuser = asyncWrapper(async (req, res, next) => {
 });
 const login = asyncWrapper(async (req, res, next) => {
 	const { email, password } = req.body;
-	const user = await userSchema.findOne({ email });
+	
+	const user = await userSchema.findOne({ email:email });
 	if (!user) {
 		const err = Error_handler.createError("User not found", 404);
 		return next(err);

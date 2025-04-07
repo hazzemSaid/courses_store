@@ -10,7 +10,6 @@ const createNewCourse = asyncWrapper(async (req, res, next) => {
   if (!errors.isEmpty()) {
     const err = Error_handler.createError("Validation Error", 400);
     err.data = errors.array();
-    console.log("here");
     return next(err);
   }
 
@@ -47,7 +46,7 @@ const getSingleCourse = asyncWrapper(async (req, res, next) => {
     console.log(err);
     return next(err);
   }
-  res.json(course);
+  return res.json(course);
 });
 
 // ✅ Update a course
