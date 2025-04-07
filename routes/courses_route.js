@@ -3,6 +3,8 @@ const controller = require("../controller/courses_controller");
 const { body } = require("express-validator");
 const router = express.Router();
 const verifyToken = require("../middleware/verifyToken");
+const allowedto = require("../middleware/allowedto");
+const userRole = require("../utils/userRole");
 router
 	.post(
 		"/",
@@ -13,6 +15,6 @@ router
 router
 	.get("/:id", controller.getSingleCourse)
 	.put("/:id", controller.updateCourse)
-	.delete("/:id", controller.deleteCourse);
+	.delete("/:id",verifyToken,allowedto(userRole.ADMIN,userRole.MANGER), controller.deleteCourse);
 
 module.exports = router;

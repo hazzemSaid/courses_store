@@ -15,17 +15,18 @@ const getalluser = asyncWrapper(async (req, res) => {
 });
 const register = asyncWrapper(async (req, res, next) => {
 
-	const { email, password, name, phone } = req.body;
+	const { email, password, name, phone,role } = req.body;
 	const hashpasswrod = bcrypt.hashSync(password, 10);
 	const newuser = userSchema({
 		email,
 		password: hashpasswrod,
 		name,
 		phone,
+		role,
 	});
 	//generate token
 	const token = await jwt.sign(
-		{ email: newuser.email, id: newuser._id },
+		{ email: newuser.email, id: newuser._id ,role:newuser.role},
 		process.env.JWT_SECRET,
 		{
 			expiresIn: "1h",
@@ -67,7 +68,8 @@ const login = asyncWrapper(async (req, res, next) => {
 		return next(err);
 	}
 	const token = jwt.sign(
-		{ email: user.email, id: user._id },
+		{ email: user.email, id: user
+			._id ,role:user.role},
 		process.env.JWT_SECRET,
 		{
 			expiresIn: "1h",

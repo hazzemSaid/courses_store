@@ -68,24 +68,19 @@ const updateCourse = asyncWrapper(async (req, res) => {
     data: course,
   });
 });
-const deleteCourse = asyncWrapper((req, res, next) => {
+const deleteCourse = asyncWrapper(async(req, res, next) => {
   const id = req.params.id;
-  Courses.findByIdAndDelete(id, { __v: false })
-    .then((data) => {
-      // res.json(data);
-      if (!data) {
-        const err = Error_handler.createError("Course not found");
-        return next(err);
-      }
-      res.status(200).json({
-        status: httpResponseText.Success,
-        data: data,
-      });
-    })
-    .catch((e) => {
-      const err = Error_handler.createError(e.massage);
-      return next(err);
-    });
+  
+  const course=await Courses.findByIdAndDelete(id, { __v: false })
+  console.log(course);
+  if (!course) {
+    const err = Error_handler.createError("Course not found", 404);
+    return next(err);
+  }
+  res.status(200).json({
+    status: httpResponseText.Success,
+    data: course,
+  });
 });
 module.exports = {
   createNewCourse,
